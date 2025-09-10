@@ -1,1 +1,0 @@
-{"ast":null,"code":"export const environment = {\n  production: true,\n  apiUrl: 'https://api.wedson.com/api',\n  environmentName: 'production'\n};","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}
