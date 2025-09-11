@@ -14,6 +14,7 @@ export interface CreateUserRequest {
   name: string;
   email: string;
   password: string;
+  isAdministrator?: boolean;
 }
 
 export interface LoginRequest {

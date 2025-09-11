@@ -10,6 +10,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
 import { UserService } from '../../../services/user.service';
 import { AuthService } from '../../../services/auth.service';
 
@@ -27,7 +29,9 @@ import { AuthService } from '../../../services/auth.service';
     MatInputModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatSelectModule,
+    MatOptionModule
   ],
   template: `
     <div class="app-container">
@@ -116,6 +120,17 @@ import { AuthService } from '../../../services/auth.service';
                   <mat-error *ngIf="userForm.hasError('passwordMismatch') && userForm.get('confirmPassword')?.touched">
                     As senhas não coincidem
                   </mat-error>
+                </mat-form-field>
+              </div>
+
+              <div *ngIf="authService.isAdmin()" class="form-row">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Tipo de Usuário</mat-label>
+                  <mat-select formControlName="isAdministrator">
+                    <mat-option [value]="false">Usuário Comum</mat-option>
+                    <mat-option [value]="true">Administrador</mat-option>
+                  </mat-select>
+                  <mat-icon matSuffix>admin_panel_settings</mat-icon>
                 </mat-form-field>
               </div>
 
@@ -233,7 +248,7 @@ export class UsuarioFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
-    private authService: AuthService,
+    public authService: AuthService,
     private router: Router,
     private snackBar: MatSnackBar
   ) {
@@ -241,7 +256,8 @@ export class UsuarioFormComponent implements OnInit {
       name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]]
+      confirmPassword: ['', [Validators.required]],
+      isAdministrator: [false]
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -282,7 +298,8 @@ export class UsuarioFormComponent implements OnInit {
       const userData = {
         name: this.userForm.value.name,
         email: this.userForm.value.email,
-        password: this.userForm.value.password
+        password: this.userForm.value.password,
+        isAdministrator: this.userForm.value.isAdministrator || false
       };
 
       this.userService.createUser(userData).subscribe({
