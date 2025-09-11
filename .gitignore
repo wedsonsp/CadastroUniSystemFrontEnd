@@ -1,2 +1,79 @@
+# Ferramentas pontuais
 bfg-1.15.0.jar
-.angular/cache/
+
+# Angular
+.angular/
+
+# Dependências
+node_modules/
+
+# Build
+dist/
+coverage/
+out-tsc/
+
+# Firebase
+.firebase/
+.firebaserc
+firebase-debug.log
+functions/lib/
+functions/node_modules/
+functions/*.log
+
+# Arquivos de ambiente
+.env
+.env.*.local
+
+# Nx (monorepo)
+nx.json
+tmp/
+tools/node_modules/
+.project.json
+workspace.json
+.cache/
+libs/**/dist/
+apps/**/dist/
+
+# Docker
+docker-compose.override.yml
+*.local.yml
+Dockerfile.*
+**/Dockerfile
+**/.dockerignore
+
+# IDEs / editores
+.vscode/
+.idea/
+.vs/
+*.swp
+*~
+*.sublime-workspace
+*.sublime-project
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+*.bak
+
+# Navegadores e caches
+.sass-cache/
+.cache/
+chrome-debug.log
+chrome-extension/
+
+# Testes e relatórios
+test-results/
+lint-results/
+cypress/screenshots/
+cypress/videos/
+
+# Backup e arquivos temporários
+*.old
+*.orig
+*.rej
+*.save
+*.tmp
