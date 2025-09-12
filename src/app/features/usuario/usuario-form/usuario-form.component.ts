@@ -277,6 +277,10 @@ export class UsuarioFormComponent implements OnInit {
       });
       this.router.navigate(['/usuarios']);
     }
+
+    // Debug: Log do estado inicial do formulário
+    console.log('Usuário é admin:', this.authService.isAdmin());
+    console.log('Valor inicial do userType:', this.userForm.get('userType')?.value);
   }
 
   passwordMatchValidator(form: FormGroup) {
@@ -290,6 +294,16 @@ export class UsuarioFormComponent implements OnInit {
     return null;
   }
 
+  convertToBoolean(value: any): boolean {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return value.toLowerCase() === 'true';
+    }
+    return false;
+  }
+
   onSubmit() {
     if (this.userForm.valid) {
       this.loading = true;
@@ -300,8 +314,14 @@ export class UsuarioFormComponent implements OnInit {
         name: this.userForm.value.name,
         email: this.userForm.value.email,
         password: this.userForm.value.password,
-        isAdministrator: this.userForm.value.userType === 'true'
+        isAdministrator: this.convertToBoolean(this.userForm.value.userType)
       };
+
+      // Debug: Log dos valores do formulário
+      console.log('Valores do formulário:', this.userForm.value);
+      console.log('userType selecionado:', this.userForm.value.userType);
+      console.log('isAdministrator convertido:', this.convertToBoolean(this.userForm.value.userType));
+      console.log('Dados que serão enviados:', userData);
 
       this.userService.createUser(userData).subscribe({
         next: (user) => {
