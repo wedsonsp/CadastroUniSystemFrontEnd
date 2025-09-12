@@ -95,6 +95,16 @@ import { User } from '../../../models/user';
                       </mat-chip>
                     </div>
                   </div>
+                  
+                  <div class="detail-item">
+                    <mat-icon>admin_panel_settings</mat-icon>
+                    <div class="detail-content">
+                      <label>Tipo de Usuário</label>
+                      <mat-chip [color]="user.isAdministrator ? 'accent' : 'primary'" selected>
+                        {{ user.isAdministrator ? 'Administrador' : 'Usuário Comum' }}
+                      </mat-chip>
+                    </div>
+                  </div>
                 </div>
               </div>
 
