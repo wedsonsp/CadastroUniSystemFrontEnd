@@ -28,4 +28,20 @@ export class EnvironmentService {
   get isLocal(): boolean {
     return this.config.environmentName === 'local';
   }
+
+  get isDynamic(): boolean {
+    return this.config.environmentName === 'dynamic';
+  }
+
+  get backendPort(): string {
+    // Extrai a porta da URL da API
+    const url = new URL(this.config.apiUrl);
+    return url.port || '7201';
+  }
+
+  get backendHost(): string {
+    // Extrai o host da URL da API
+    const url = new URL(this.config.apiUrl);
+    return url.hostname;
+  }
 }

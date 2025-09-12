@@ -83,6 +83,20 @@
                   "with": "src/environments/environment.local.ts"
                 }
               ]
+            },
+            "dynamic": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dynamic.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -98,6 +112,9 @@
             },
             "local": {
               "buildTarget": "projeto-wedson-front:build:local"
+            },
+            "dynamic": {
+              "buildTarget": "projeto-wedson-front:build:dynamic"
             }
           },
           "defaultConfiguration": "development"
