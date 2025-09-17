@@ -8,7 +8,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../../services/auth.service';
+import { ResetPasswordComponent, ResetPasswordData } from '../reset-password/reset-password.component';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +23,8 @@ import { AuthService } from '../../../services/auth.service';
     MatInputModule, 
     MatButtonModule, 
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatDialogModule
   ],
   template: `
     <div class="login-container">
@@ -75,6 +78,15 @@ import { AuthService } from '../../../services/auth.service';
             <mat-spinner *ngIf="loading" diameter="20" style="margin-right: 10px;"></mat-spinner>
             {{ loading ? 'Entrando...' : 'Entrar' }}
           </button>
+          
+          <button
+            mat-button
+            color="accent"
+            class="full-width change-password-btn"
+            (click)="onChangePassword()"
+          >
+            Alterar Senha
+          </button>
         </mat-card-actions>
       </mat-card>
     </div>
@@ -112,6 +124,13 @@ import { AuthService } from '../../../services/auth.service';
     
     mat-card-actions {
       padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .change-password-btn {
+      margin-top: 8px;
     }
   `]
 })
@@ -124,7 +143,8 @@ export class LoginComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -169,5 +189,54 @@ export class LoginComponent {
         }
       });
     }
+  }
+
+  onChangePassword() {
+    const email = this.loginForm.get('email')?.value;
+    
+    if (!email) {
+      this.snackBar.open('Digite seu email primeiro!', 'Fechar', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top'
+      });
+      return;
+    }
+
+    // Pegar o token atual do localStorage
+    const currentToken = this.authService.getToken();
+    console.log('Token atual para reset de senha:', currentToken ? currentToken.substring(0, 20) + '...' : 'Nenhum token');
+    
+    if (!currentToken) {
+      console.log('Usuário não está logado - tentando reset sem autenticação');
+      console.log('IMPORTANTE: Para reset com token, faça login primeiro!');
+    } else {
+      console.log('Usuário logado - usando endpoint autenticado para reset de senha');
+    }
+
+    const dialogData: ResetPasswordData = {
+      email: email,
+      token: currentToken || undefined,
+      scenario: currentToken ? 'authenticated' : 'forgot'
+    };
+
+    const dialogRef = this.dialog.open(ResetPasswordComponent, {
+      width: '500px',
+      data: dialogData,
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('✅ Reset de senha realizado com sucesso!');
+        this.snackBar.open('Senha redefinida com sucesso! Agora você pode fazer login.', 'Fechar', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top'
+        });
+        // Limpar campo de senha
+        this.loginForm.get('password')?.setValue('');
+      }
+    });
   }
 }
