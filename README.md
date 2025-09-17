@@ -5,9 +5,13 @@ Sistema de gerenciamento de usuários desenvolvido em Angular 19 com Angular Mat
 ## 🚀 Funcionalidades
 
 - **Autenticação**: Sistema de login com JWT
+- **Reset de Senha**: Sistema completo de recuperação de senha
+  - Fluxo "Esqueci minha senha" com token de reset
+  - Interface em tela única com confirmação visual
+  - Validação de token e expiração
 - **Gerenciamento de Usuários**: 
   - Listagem de usuários
-  - Criação de novos usuários
+  - Criação de novos usuários (apenas administradores)
   - Visualização de detalhes do usuário
   - Busca de usuário por ID
 - **Interface Moderna**: Design responsivo com Angular Material
@@ -38,6 +42,10 @@ src/
 │   │   └── usuario/
 │   │       ├── login/
 │   │       │   └── login.component.ts
+│   │       ├── reset-password/
+│   │       │   └── reset-password.component.ts
+│   │       ├── profile/
+│   │       │   └── profile.component.ts
 │   │       ├── usuario-detail/
 │   │       │   └── usuario-detail.component.ts
 │   │       ├── usuario-form/
@@ -49,9 +57,15 @@ src/
 │   │   └── user.ts
 │   ├── services/
 │   │   ├── auth.service.ts
-│   │   └── user.service.ts
+│   │   ├── user.service.ts
+│   │   └── environment.service.ts
 │   ├── app.component.ts
 │   └── app.routes.ts
+├── environments/
+│   ├── environment.ts
+│   ├── environment.development.ts
+│   ├── environment.local.ts
+│   └── environment.production.ts
 ├── styles.scss
 └── main.ts
 ```
@@ -83,10 +97,18 @@ src/
 
 O projeto consome os seguintes endpoints:
 
-- **POST** `http://localhost:7205/api/auth/login` - Login
-- **POST** `http://localhost:7205/api/users` - Criar usuário
-- **GET** `http://localhost:7205/api/users` - Listar usuários
-- **GET** `http://localhost:7205/api/users/{id}` - Buscar usuário por ID
+### 🔐 Autenticação
+- **POST** `http://localhost:7071/api/Auth/login` - Login de usuário
+- **POST** `http://localhost:7071/api/Auth/forgot-password` - Solicitar token de reset de senha
+- **POST** `http://localhost:7071/api/Auth/reset-password-with-reset-token` - Redefinir senha com token
+- **POST** `http://localhost:7071/api/Auth/reset-password` - Reset de senha para usuário logado
+
+### 👥 Gerenciamento de Usuários
+- **POST** `http://localhost:7071/api/users` - Criar usuário
+- **GET** `http://localhost:7071/api/users` - Listar usuários
+- **GET** `http://localhost:7071/api/users/{id}` - Buscar usuário por ID
+- **PUT** `http://localhost:7071/api/users/{id}` - Atualizar usuário
+- **DELETE** `http://localhost:7071/api/users/{id}` - Excluir usuário
 
 ## 📱 Funcionalidades Detalhadas
 
@@ -96,6 +118,36 @@ O projeto consome os seguintes endpoints:
 - Redirecionamento automático após login
 - Logout com limpeza de dados
 
+### 🔑 Reset de Senha
+
+#### Fluxo "Esqueci minha senha"
+O sistema implementa um fluxo completo de recuperação de senha em **tela única**:
+
+1. **Acesso**: Clique em "Alterar Senha" na tela de login
+2. **Preenchimento**: Digite o email e a nova senha desejada
+3. **Solicitar Token**: Clique em "Solicitar Token"
+   - Sistema faz `POST /api/Auth/forgot-password`
+   - Token é preenchido automaticamente no campo
+   - Confirmação visual: "Token de reset obtido!"
+4. **Confirmar Reset**: Clique em "Alterar Senha"
+   - Sistema faz `POST /api/Auth/reset-password-with-reset-token`
+   - Senha é alterada com sucesso
+   - Confirmação: "Senha redefinida com sucesso!"
+
+#### Características do Sistema
+- **Interface em tela única**: Toda operação em um modal
+- **Token automático**: Preenchimento automático do token de reset
+- **Validação completa**: Email, senha e confirmação de senha
+- **Feedback visual**: Mensagens de sucesso/erro em tempo real
+- **Segurança**: Token expira em 1 hora e só pode ser usado uma vez
+
+#### Validações de Segurança
+- ✅ Token deve existir no banco
+- ✅ Token não pode estar usado (IsUsed = false)
+- ✅ Token não pode estar expirado (ExpiresAt > DateTime.UtcNow)
+- ✅ Usuário deve estar ativo
+- ✅ Token é marcado como usado após o reset
+
 ### 👥 Gerenciamento de Usuários
 
 #### Lista de Usuários
@@ -103,8 +155,11 @@ O projeto consome os seguintes endpoints:
 - Busca por ID do usuário
 - Indicadores visuais de status (ativo/inativo)
 - Ações para visualizar detalhes
+- **Controle de acesso**: Botão "Novo Usuário" aparece apenas para administradores
+- **Identificação visual**: Chip "Admin" para usuários administradores
 
 #### Criação de Usuário
+- **Acesso restrito**: Apenas usuários com perfil de administrador
 - Formulário com validação completa
 - Confirmação de senha
 - Feedback visual de sucesso/erro
@@ -114,6 +169,12 @@ O projeto consome os seguintes endpoints:
 - Visualização completa das informações
 - Layout organizado em seções
 - Informações de auditoria (criado/atualizado por)
+- **Identificação de perfil**: Exibe "Administrador" ou "Usuário Comum"
+
+#### Perfil do Usuário
+- Visualização das informações pessoais
+- **Sem opção de alterar senha**: Reset de senha apenas via tela de login
+- Interface limpa e focada nas informações
 
 ## 🎨 Design System
 
@@ -134,8 +195,8 @@ O projeto utiliza Angular Material com tema personalizado:
 ## 🚀 Scripts Disponíveis
 
 ### Desenvolvimento
-- `npm start` - Inicia o servidor de desenvolvimento (ambiente **local** - localhost:7201)
-- `npm run start:local` - Inicia com ambiente **local** (localhost:7201)
+- `npm start` - Inicia o servidor de desenvolvimento (ambiente **local** - localhost:7071)
+- `npm run start:local` - Inicia com ambiente **local** (localhost:7071)
 - `npm run start:dev` - Inicia com ambiente de **desenvolvimento** (api-dev.wedson.com)
 - `npm run start:prod` - Inicia em modo **produção** (api.wedson.com)
 - `npm run start:no-proxy` - Inicia sem proxy (ambiente local)
@@ -154,7 +215,7 @@ O projeto utiliza Angular Material com tema personalizado:
 
 > **Nota**: Todos os comandos `npm run start:*` já incluem as configurações de proxy e ambiente necessárias.
 
-### Ambiente Local (Backend em localhost:7201)
+### Ambiente Local (Backend em localhost:7071)
 ```bash
 ng serve --configuration local
 # ou
@@ -162,7 +223,7 @@ npm start
 # ou
 npm run start:local
 ```
-**URL da API**: `http://localhost:7201/api`
+**URL da API**: `http://localhost:7071/api`
 
 ### Ambiente de Desenvolvimento
 ```bash
@@ -193,8 +254,9 @@ Para verificar as requisições enviadas e recebidas da API durante o desenvolvi
 1. Abra o console (`Ctrl + Shift + I`)
 2. Vá para a aba **"Network"** (Rede)
 3. Faça login na aplicação
-4. Observe as requisições para `/api/auth/authenticate`
-5. Clique na requisição para ver:
+4. Observe as requisições para `/api/Auth/login`
+5. Teste o reset de senha e observe as requisições para `/api/Auth/forgot-password` e `/api/Auth/reset-password-with-reset-token`
+6. Clique na requisição para ver:
    - **Headers**: Cabeçalhos enviados e recebidos
    - **Payload**: Dados enviados no corpo da requisição
    - **Response**: Resposta recebida da API
@@ -202,7 +264,7 @@ Para verificar as requisições enviadas e recebidas da API durante o desenvolvi
 ### 3. Logs do Interceptor
 O projeto possui interceptors que fazem log das requisições. No console você verá:
 ```
-Interceptor - URL: http://localhost:7201/api/auth/authenticate
+Interceptor - URL: http://localhost:7071/api/Auth/login
 Interceptor - Token presente: false
 Interceptor - Headers originais: Array(2)
 ```
@@ -210,7 +272,7 @@ Interceptor - Headers originais: Array(2)
 ### 4. Verificar Erros de CORS
 Se houver problemas de CORS, você verá erros como:
 ```
-Access to XMLHttpRequest at 'http://localhost:7201/api/auth/authenticate' 
+Access to XMLHttpRequest at 'http://localhost:7071/api/Auth/login' 
 from origin 'http://localhost:4200' has been blocked by CORS policy
 ```
 
@@ -224,9 +286,15 @@ from origin 'http://localhost:4200' has been blocked by CORS policy
 
 O projeto suporta múltiplos ambientes com configuração automática:
 
-- **Local**: `http://localhost:7201/api` (desenvolvimento local - backend Azure Functions)
+- **Local**: `http://localhost:7071/api` (desenvolvimento local - backend .NET)
 - **Development**: `https://api-dev.wedson.com/api` (servidor de desenvolvimento)
 - **Production**: `https://api.wedson.com/api` (servidor de produção)
+
+### 🔧 Configuração de Proxy
+O projeto inclui configurações de proxy para desenvolvimento local:
+- `proxy.conf.json` - Configuração principal
+- `proxy.conf.local.json` - Configuração específica para ambiente local
+- `proxy.conf.dev.json` - Configuração para ambiente de desenvolvimento
 
 Para mais detalhes sobre configuração de ambientes, consulte o arquivo [ENVIRONMENT.md](./ENVIRONMENT.md).
 
@@ -266,7 +334,8 @@ ng update @angular/material@19
 - Node.js (versão 18 ou superior)
 - npm (versão 9 ou superior)
 - Angular CLI 19.2.15 (instalado globalmente)
-- Backend da API rodando na porta 7205
+- Backend da API .NET rodando na porta 7071
+- Banco de dados SQL Server configurado
 
 ## 🤝 Contribuição
 
